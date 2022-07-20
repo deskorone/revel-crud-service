@@ -1,28 +1,42 @@
 package service
 
 import (
-	"testAuth/app"
+	"fmt"
 	"testAuth/app/models"
+	"testAuth/app/repo"
 
 	"github.com/revel/revel"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthServiceImpl struct {
+	repos *repo.Repository
 }
 
-const findByIdQ = "select * from usr u where u.user_id = $1"
-
 func (o *AuthServiceImpl) Login(c *revel.Controller, r models.LoginRequest) error {
+	pswd := r.Password
+	username := r.Username
+	fmt.Println("HELLO")
+	fmt.Println("HELLO")
+	fmt.Println("HELLO", o.repos.UserRepo)
+	u, err := o.repos.UserRepo.FindUserByName(username)
+	if err != nil {
+		return err
+	}
+	e := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(pswd))
+	if e != nil {
+		return e
+	}
+	c.Session["user"] = u.Id
 	return nil
 }
 
-func (c *AuthServiceImpl) FindUserById(Id int) (*models.User, error) {
-	u := models.User{}
-
-	if err := app.DB.QueryRow(findByIdQ, Id).Scan(&u.Id, &u.Name, &u.Password, &u.Balance); err != nil {
+func (c *AuthServiceImpl) GetUserById(Id int) (*models.User, error) {
+	u, err := c.repos.UserRepo.FindUserById(Id)
+	if err != nil {
 		return nil, err
 	}
-	return &u, nil
+	return u, nil
 }
 
 func (o *AuthServiceImpl) CheckUser(c *revel.Controller) (int, error) {
@@ -36,17 +50,17 @@ func (o *AuthServiceImpl) CheckUser(c *revel.Controller) (int, error) {
 
 func (o *AuthServiceImpl) GetUser(c *revel.Controller) (*models.User, error) {
 	id, err := o.CheckUser(c)
-	if err != nil{
+	if err != nil {
 		return nil, err
-	}	
-	return o.FindUserById(id)
+	}
+	return o.GetUserById(id)
 }
 
 var instanceAuthService AuthService
 
-func getAuthService() AuthService {
+func getAuthService(repo *repo.Repository) AuthService {
 	if instanceAuthService == nil {
-		instanceAuthService = new(AuthServiceImpl)
+		instanceAuthService = &AuthServiceImpl{repos: repo}
 	}
 	return instanceAuthService
 }

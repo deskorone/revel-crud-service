@@ -7,7 +7,12 @@ type User struct {
 	Balance  int    `json:"balance"`
 }
 
+type UserView struct {
+	Id   int    `json:"id"`
+	Name string `json:"username"`
+}
+
 type LoginRequest struct {
-	Username string
-	Password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }

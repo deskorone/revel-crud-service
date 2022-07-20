@@ -1,40 +1,60 @@
 package service
 
 import (
-	"testAuth/app"
 	"testAuth/app/models"
+	"testAuth/app/repo"
+	"github.com/revel/revel"
 )
 
 type HotelServiceImpl struct {
+	Repo *repo.Repository
 }
 
-const addHotelQ = "insert into hotel (name, avaible) values($1, $2)"
-const deleteHotel = "delete from hotel h  where h.user_id = $1 and h.hotel_id = $2"
 
 var instanceHotelService HotelService
 
-func (c *HotelServiceImpl) SaveHotel(h models.Hotel) (*models.Hotel, error) {
-	err := app.DB.QueryRow(addHotelQ, h.Name, h.Avaible).Scan(&h.ID, &h.Name, &h.Avaible)
+func (*HotelServiceImpl) AddCommentToHotel(c *revel.Controller, hID int) (*models.Comment, error){
+	panic("sad")	
+}
 
+
+func (o *HotelServiceImpl) SaveHotel(h models.Hotel, c *revel.Controller) (*models.HotelResp, error) {
+	id, err := instance.AuthService.CheckUser(c)
+	if err != nil {
+		c.Response.Status = 403
+		return nil, err
+	}
+	hr, err := o.Repo.HotelRepo.SaveHotel(&h, id)
 	if err != nil {
 		return nil, err
 	}
-	return &h, nil
+	return hr, nil
 
 }
 
 func (c *HotelServiceImpl) DeleteHotel(uId int, hId int) error {
-	_, err := app.DB.Exec(deleteHotel, uId, hId)
-	if err != nil {
-		return err
-	}
-	return nil
+	err := c.Repo.HotelRepo.DeleteHotel(uId, hId) 
+	return err
 }
 
+func (o *HotelServiceImpl) GetHotelByUser(c *revel.Controller) ([]models.Hotel, error) {
 
-func getHotelServiceImpl () HotelService{
-	once.Do(func() {
-		instanceHotelService = new(HotelServiceImpl)
-	})
+	id, err := instance.AuthService.CheckUser(c)
+	if err != nil {
+		return nil, err
+	}
+	arr, err := o.Repo.HotelRepo.GetHotelsByUser(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return arr, nil
+
+}
+
+func getHotelServiceImpl(r *repo.Repository) HotelService {
+	if instanceHotelService == nil {
+		instanceHotelService = &HotelServiceImpl{r}
+	}
 	return instanceHotelService
 }
