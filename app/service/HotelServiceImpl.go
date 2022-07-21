@@ -19,12 +19,12 @@ func (*HotelServiceImpl) AddCommentToHotel(c *revel.Controller, hID int) (*model
 
 
 func (o *HotelServiceImpl) SaveHotel(h models.Hotel, c *revel.Controller) (*models.HotelResp, error) {
-	id, err := instance.AuthService.CheckUser(c)
+	u, err := instance.AuthService.GetUser(c)
 	if err != nil {
 		c.Response.Status = 403
 		return nil, err
 	}
-	hr, err := o.Repo.HotelRepo.SaveHotel(&h, id)
+	hr, err := o.Repo.HotelRepo.SaveHotel(&h, u.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +39,11 @@ func (c *HotelServiceImpl) DeleteHotel(uId int, hId int) error {
 
 func (o *HotelServiceImpl) GetHotelByUser(c *revel.Controller) ([]models.Hotel, error) {
 
-	id, err := instance.AuthService.CheckUser(c)
+	u, err := instance.AuthService.GetUser(c)
 	if err != nil {
 		return nil, err
 	}
-	arr, err := o.Repo.HotelRepo.GetHotelsByUser(id)
+	arr, err := o.Repo.HotelRepo.GetHotelsByUser(u.Id)
 	if err != nil {
 		return nil, err
 	}

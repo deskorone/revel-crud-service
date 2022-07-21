@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"testAuth/app/models"
 	"testAuth/app/service"
-
 	"github.com/revel/revel"
 )
 
@@ -23,15 +22,11 @@ func (c App) Register() revel.Result {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
-	r, err := service.GetService().UserService.SaveUser(u)
+	err = service.GetService().AuthService.Registration(c.Controller, u)
 	if err != nil {
-		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
+		c.Response.Status = 400
+		return c.RenderJSON(map[string]interface{}{"Error" : err})
 	}
-
-	c.Session["user"] = r.Id
-	c.Session.SetNoExpiration()
-
 	return c.RenderJSON(map[string]interface{}{"You": "auth"})
 }
 

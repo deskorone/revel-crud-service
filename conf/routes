@@ -8,5 +8,3 @@ POST    /reg                                    App.Register
 GET     /sub                                    App.SubToHotel
 POST    /log                                    App.Login
 POST    /add                                    App.AddHotel
-GET     /logout                                 App.Logout
-POST    /comment/:Index                         App.AddComment

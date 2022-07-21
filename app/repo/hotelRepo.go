@@ -9,12 +9,28 @@ type HotelRepoImpl struct {
 	DB *sql.DB
 }
 
+// AddComment implements HotelRepo
+func (c HotelRepoImpl) AddComment(hId int, uv models.UserView, text string) (*models.CommentResp, error) {
+	cr := models.CommentResp{}
+	err := c.DB.QueryRow(addCommentQ, text, hId, uv.Id).Scan(&cr.ID, &cr.Text)
+	if err != nil {
+		return nil, err
+	}
+	cr.UserView = uv
+	return &cr, nil
+}
+
+// GetHotelById implements HotelRepo
+func (HotelRepoImpl) GetHotelById(hId int) (*models.HotelResp, error) {
+	panic("unimplemented")
+}
+
 // DeleteHotel implements HotelRepo
 func (c HotelRepoImpl) DeleteHotel(uId int, hid int) error {
 	_, err := c.DB.Exec(deleteHoteQ, hid, uId)
 	if err != nil {
 		return err
-	} 
+	}
 	return nil
 }
 
@@ -41,7 +57,7 @@ func (c HotelRepoImpl) Sub(hId int, uId int) (*models.Hotel, error) {
 		return nil, err
 	}
 	h := &models.Hotel{}
-	err = c.DB.QueryRow(selectHotel, hId).Scan(h.ID, h.Name, h.Avaible)
+	err = c.DB.QueryRow(selectHotelQ, hId).Scan(h.ID, h.Name, h.Avaible)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +89,7 @@ func (c HotelRepoImpl) GetAllHotels() ([]models.HotelResp, error) {
 
 // GetHotelByUser implements HotelRepo
 func (c HotelRepoImpl) GetHotelsByUser(id int) ([]models.Hotel, error) {
-	r, err := c.DB.Query(getHotelByUser, id)
+	r, err := c.DB.Query(getHotelByUserQ, id)
 	if err != nil {
 		return nil, err
 	}
@@ -100,11 +116,12 @@ func NewHotelRepo(DB *sql.DB) HotelRepo {
 
 const (
 	getAllQ          = "select h.hotel_id, h.name, h.avaible, u.user_id, u.username from hotel h inner join usr as u on u.user_id = h.user_id"
-	getHotelByUser   = "select h.hotel_id, h.name, h.avaible from hotel h where h.user_id = $1"
+	getHotelByUserQ  = "select h.hotel_id, h.name, h.avaible from hotel h where h.user_id = $1"
 	subHotelQ        = "insert into usr_hotel (user_id, hotel_id) values($1,$2) returning *"
 	unsubHotelQ      = "delete from usr_hotel t where t.user_id = $1 and t.hotel_id = $2"
-	selectHotel      = "select h.hotel_id, h.name, h.avaible from hotel h where h.hotel_id = $1"
+	selectHotelQ     = "select h.hotel_id, h.name, h.avaible from hotel h where h.hotel_id = $1"
 	saveHotelQ       = "insert into hotel (name, avaible, user_id) values ($1,$2,$3) returning hotel_id, name, avaible"
 	getUserViewbyIdQ = "select user_id, username from usr where user_id = $1"
 	deleteHoteQ      = "delete from hotel h where h.hotel_id = $1 and h.user_id = $2"
+	addCommentQ      = "insert into comment (text, hotel_id, user_id) values ($1,$2,$3) returning comment_id, text"
 )

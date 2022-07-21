@@ -23,9 +23,9 @@ type UserService interface {
 }
 
 type AuthService interface {
+	Registration(c *revel.Controller, r models.User) error
 	Login(c *revel.Controller, r models.LoginRequest) error
-	GetUser(c *revel.Controller) (*models.User, error)
-	CheckUser(c *revel.Controller) (int, error)
+	GetUser(c *revel.Controller) (*models.UserView, error)
 	GetUserById(Id int) (*models.User, error)
 }
 

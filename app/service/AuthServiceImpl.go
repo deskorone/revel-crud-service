@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"testAuth/app/models"
 	"testAuth/app/repo"
 
@@ -13,12 +12,24 @@ type AuthServiceImpl struct {
 	repos *repo.Repository
 }
 
+// Registration implements AuthService
+func (*AuthServiceImpl) Registration(c *revel.Controller, r models.User) error{
+	u, err := instance.UserService.SaveUser(r) 
+	if err != nil {
+		c.Response.Status = 400
+		return err
+	}
+	uv := models.UserView{}
+	uv.Id = u.Id
+	uv.Name = u.Name
+	c.Session["user"] = uv
+	c.Session.SetNoExpiration()
+	return nil
+}
+
 func (o *AuthServiceImpl) Login(c *revel.Controller, r models.LoginRequest) error {
 	pswd := r.Password
 	username := r.Username
-	fmt.Println("HELLO")
-	fmt.Println("HELLO")
-	fmt.Println("HELLO", o.repos.UserRepo)
 	u, err := o.repos.UserRepo.FindUserByName(username)
 	if err != nil {
 		return err
@@ -27,7 +38,10 @@ func (o *AuthServiceImpl) Login(c *revel.Controller, r models.LoginRequest) erro
 	if e != nil {
 		return e
 	}
-	c.Session["user"] = u.Id
+	uv := models.UserView{}
+	uv.Id = u.Id
+	uv.Name = u.Name
+	c.Session["user"] = uv
 	return nil
 }
 
@@ -39,21 +53,13 @@ func (c *AuthServiceImpl) GetUserById(Id int) (*models.User, error) {
 	return u, nil
 }
 
-func (o *AuthServiceImpl) CheckUser(c *revel.Controller) (int, error) {
-	id, err := c.Session.Get("user")
-	if err != nil {
-		return 0, err
-	}
-	var iId = int(id.(float64))
-	return iId, nil
-}
-
-func (o *AuthServiceImpl) GetUser(c *revel.Controller) (*models.User, error) {
-	id, err := o.CheckUser(c)
+func (o *AuthServiceImpl) GetUser(c *revel.Controller) (*models.UserView, error) {
+	uv, err := c.Session.Get("user")
 	if err != nil {
 		return nil, err
 	}
-	return o.GetUserById(id)
+
+	return uv.(*models.UserView), nil
 }
 
 var instanceAuthService AuthService

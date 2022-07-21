@@ -5,8 +5,6 @@ import (
 	"testAuth/app/models"
 )
 
-//TODO: make const
-
 type Repository struct {
 	UserRepo  UserRepo
 	HotelRepo HotelRepo
@@ -26,10 +24,12 @@ type HotelRepo interface {
 	Unsub(hId int, uId int) error
 	SaveHotel(h *models.Hotel, id int) (*models.HotelResp, error)
 	DeleteHotel(uId, hid int) error
+	AddComment(hId int, uV models.UserView, text string) (*models.CommentResp, error)
+	GetHotelById(hId int) (*models.HotelResp, error)
 }
 
 type AuthRepo interface {
-	Registration(u models.User) (*models.User, error)
+
 }
 
 func NewRepo(db *sql.DB) *Repository {

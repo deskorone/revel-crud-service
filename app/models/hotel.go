@@ -11,16 +11,19 @@ type HotelResp struct {
 	Name     string
 	Avaible  int
 	UserView UserView
+	Comments []CommentResp
 }
 
+
 type Comment struct {
-	ID     int64
-	Text   string `json:"text"`
-	UserID int
+	ID      int64
+	Text    string `json:"text"`
+	HotelID int    `json:"hotel_id"`
+	UserID  int    `json:"user_id"`
 }
 
 type CommentResp struct {
-	ID       int64
-	Text     string
-	UserView UserView
+	ID        int64
+	Text      string
+	UserView  UserView
 }
