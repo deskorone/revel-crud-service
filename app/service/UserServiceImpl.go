@@ -39,16 +39,27 @@ func (c *UserServiceImpl) SaveUser(u models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (c *UserServiceImpl) SubHotel(uId int, hId int) (*models.Hotel, error) {
-	h, err := c.repos.HotelRepo.Sub(hId, uId)
+func (c *UserServiceImpl) SubHotel(cont *revel.Controller, hID int) (*models.Hotel, error) {
+	u, err := instance.AuthService.GetUser(cont)
+	if err != nil {
+		cont.Response.Status = 403
+		return nil, err
+	}
+	h, err := c.repos.HotelRepo.Sub(hID, u.Id)
 	if err != nil {
 		return nil, err
 	}
 	return h, nil
 }
 
-func (c *UserServiceImpl) UnsubHotel(uId int, hId int) error {
-	err := c.repos.HotelRepo.Unsub(hId, uId)
+func (c *UserServiceImpl) UnsubHotel(cont *revel.Controller, hId int) error {
+	u, err := instance.AuthService.GetUser(cont)
+	if err != nil {
+		cont.Response.Status = 403
+		return err
+	}
+
+	err = c.repos.HotelRepo.Unsub(hId, u.Id)
 	if err != nil {
 		return err
 	}

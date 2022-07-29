@@ -12,6 +12,9 @@ type UserView struct {
 	Name string `json:"username"`
 }
 
+
+
+
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

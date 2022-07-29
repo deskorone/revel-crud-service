@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
+	"strconv"
 	"testAuth/app/models"
 	"testAuth/app/service"
+
 	"github.com/revel/revel"
 )
 
@@ -25,19 +26,24 @@ func (c App) Register() revel.Result {
 	err = service.GetService().AuthService.Registration(c.Controller, u)
 	if err != nil {
 		c.Response.Status = 400
-		return c.RenderJSON(map[string]interface{}{"Error" : err})
+		return c.RenderJSON(map[string]interface{}{"Error": err})
 	}
 	return c.RenderJSON(map[string]interface{}{"You": "auth"})
 }
 
 func (c App) SubToHotel() revel.Result {
-	a, err := service.GetService().HotelService.GetHotelByUser(c.Controller)
+	id := c.Params.Query.Get("id")
+	n, err := strconv.Atoi(id)
 	if err != nil {
-		c.Response.Status = http.StatusForbidden
+		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
+	}
+	a, err := service.GetService().UserService.SubHotel(c.Controller, n)
+	if err != nil {
 		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
 	}
 	return c.RenderJSON(a)
 }
+
 
 func (c App) Logout() revel.Result {
 	for k := range c.Session {
@@ -67,8 +73,21 @@ func (c App) AddHotel() revel.Result {
 	if err != nil {
 		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
 	}
-	
+
 	return c.RenderJSON(h)
+}
+
+func (c App) UnsubToHotel() revel.Result {
+	id := c.Params.Query.Get("id")
+	n, err := strconv.Atoi(id)
+	if err != nil {
+		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
+	}
+	err = service.GetService().UserService.UnsubHotel(c.Controller, n)
+	if err != nil {
+		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
+	}
+	return c.RenderJSON("OK")
 }
 
 func BuildCredError(c *revel.Controller, msg string) revel.Result {

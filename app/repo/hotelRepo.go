@@ -52,21 +52,41 @@ func (c HotelRepoImpl) SaveHotel(h *models.Hotel, id int) (*models.HotelResp, er
 
 // Sub implements HotelRepo
 func (c HotelRepoImpl) Sub(hId int, uId int) (*models.Hotel, error) {
-	_, err := c.DB.Exec(subHotelQ, uId, hId)
+
+	h := models.Hotel{}
+	err := c.DB.QueryRow(selectHotelQ, hId).Scan(&h.ID, &h.Name, &h.Avaible)
 	if err != nil {
 		return nil, err
 	}
-	h := &models.Hotel{}
-	err = c.DB.QueryRow(selectHotelQ, hId).Scan(h.ID, h.Name, h.Avaible)
-	if err != nil {
-		return nil, err
+
+	if h.Avaible > 0 {
+		_, err := c.DB.Exec(subHotelQ, uId, hId)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = c.DB.Exec(insertAvaible, h.Avaible-1, hId)
+
+		if err != nil {
+			return nil, err
+		}
 	}
-	return h, err
+	h.Avaible = h.Avaible - 1
+	return &h, nil
 }
 
 // Unsub implements HotelRepo
 func (c HotelRepoImpl) Unsub(hId int, uId int) error {
-	_, err := c.DB.Exec(unsubHotelQ, uId, hId)
+	h := models.Hotel{}
+	err := c.DB.QueryRow(selectHotelQ, hId).Scan(&h.ID, &h.Name, &h.Avaible)
+	if err != nil {
+		return err
+	}
+	_, err = c.DB.Exec(unsubHotelQ, uId, hId)
+	if err != nil {
+		return err
+	}
+	_, err = c.DB.Exec(insertAvaible, h.Avaible+1, hId)
 	return err
 }
 
@@ -77,6 +97,7 @@ func (c HotelRepoImpl) GetAllHotels() ([]models.HotelResp, error) {
 		return nil, err
 	}
 	arr := make([]models.HotelResp, 0)
+
 	for r.Next() {
 		h := models.HotelResp{}
 		if err := r.Scan(&h.ID, &h.Name, &h.Avaible, &h.UserView.Id, &h.UserView.Name); err != nil {
@@ -124,4 +145,5 @@ const (
 	getUserViewbyIdQ = "select user_id, username from usr where user_id = $1"
 	deleteHoteQ      = "delete from hotel h where h.hotel_id = $1 and h.user_id = $2"
 	addCommentQ      = "insert into comment (text, hotel_id, user_id) values ($1,$2,$3) returning comment_id, text"
+	insertAvaible    = "update hotel set avaible = $1 where hotel_id = $2"
 )

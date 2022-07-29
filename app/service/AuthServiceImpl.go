@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"testAuth/app/models"
 	"testAuth/app/repo"
 
@@ -13,8 +14,8 @@ type AuthServiceImpl struct {
 }
 
 // Registration implements AuthService
-func (*AuthServiceImpl) Registration(c *revel.Controller, r models.User) error{
-	u, err := instance.UserService.SaveUser(r) 
+func (*AuthServiceImpl) Registration(c *revel.Controller, r models.User) error {
+	u, err := instance.UserService.SaveUser(r)
 	if err != nil {
 		c.Response.Status = 400
 		return err
@@ -59,7 +60,22 @@ func (o *AuthServiceImpl) GetUser(c *revel.Controller) (*models.UserView, error)
 		return nil, err
 	}
 
-	return uv.(*models.UserView), nil
+	nv, ok := uv.(map[string]interface{})
+	if !ok {
+		return nil, err
+	}
+
+	u := &models.UserView{}
+	u.Id = int(nv["id"].(float64))
+	if !ok {
+		return nil, errors.New("error cast")
+	}
+
+	u.Name, ok = nv["username"].(string)
+	if !ok {
+		return nil, errors.New("error cast")
+	}
+	return u, nil
 }
 
 var instanceAuthService AuthService
@@ -69,4 +85,9 @@ func getAuthService(repo *repo.Repository) AuthService {
 		instanceAuthService = &AuthServiceImpl{repos: repo}
 	}
 	return instanceAuthService
+}
+
+type castType struct {
+	id       float64
+	username string
 }

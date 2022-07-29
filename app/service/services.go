@@ -17,8 +17,8 @@ type Service struct {
 
 type UserService interface {
 	SaveUser(u models.User) (*models.User, error)
-	SubHotel(uId int, hId int) (*models.Hotel, error)
-	UnsubHotel(uId int, hId int) error
+	SubHotel(c *revel.Controller,hID int) (*models.Hotel, error)
+	UnsubHotel(c *revel.Controller, hId int) error
 	GetUserById(c *revel.Controller, id int) (*models.User, error)
 }
 

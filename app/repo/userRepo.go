@@ -2,7 +2,6 @@ package repo
 
 import (
 	"database/sql"
-	"fmt"
 	"testAuth/app/models"
 )
 
@@ -10,9 +9,11 @@ type UserRepoImpl struct {
 	DB *sql.DB
 }
 
-const findByNameQ = "select * from usr u where u.username = $1"
-const saveUserQ = "insert into usr (username, password, balance) values ($1, $2, $3) returning *"
-const findUserQ = "select * from usr u where u.user_id = $1"
+const (
+	findByNameQ = "select * from usr u where u.username = $1"
+	saveUserQ   = "insert into usr (username, password, balance) values ($1, $2, $3) returning *"
+	findUserQ   = "select * from usr u where u.user_id = $1"
+)
 
 // FindUserByName implements UserRepo
 func (c *UserRepoImpl) FindUserByName(Name string) (*models.User, error) {
@@ -34,7 +35,6 @@ func (c *UserRepoImpl) Save(u models.User) (*models.User, error) {
 	return &u, nil
 }
 
-
 // FindUserById implements UserRepo
 func (c *UserRepoImpl) FindUserById(id int) (*models.User, error) {
 	u := models.User{}
@@ -51,10 +51,6 @@ var userRepoInstance UserRepo
 func NewUserRepo(DB *sql.DB) UserRepo {
 	if userRepoInstance == nil {
 		userRepoInstance = &UserRepoImpl{DB: DB}
-		fmt.Println("GELLO " , userRepoInstance)
-		fmt.Println("GELLO " , userRepoInstance)
-		fmt.Println("GELLO " , userRepoInstance)
-		fmt.Println("GELLO " , userRepoInstance)
 	}
 	return userRepoInstance
 }
