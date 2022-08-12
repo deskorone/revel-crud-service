@@ -29,7 +29,6 @@ type HotelRepo interface {
 }
 
 type AuthRepo interface {
-
 }
 
 func NewRepo(db *sql.DB) *Repository {

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"testAuth/app/models"
 	"testAuth/app/repo"
 
@@ -55,27 +54,15 @@ func (c *AuthServiceImpl) GetUserById(Id int) (*models.User, error) {
 }
 
 func (o *AuthServiceImpl) GetUser(c *revel.Controller) (*models.UserView, error) {
-	uv, err := c.Session.Get("user")
+	
+	user := models.UserView{}
+	
+	_ , err := c.Session.GetInto("user", &user, false);
 	if err != nil {
 		return nil, err
 	}
 
-	nv, ok := uv.(map[string]interface{})
-	if !ok {
-		return nil, err
-	}
-
-	u := &models.UserView{}
-	u.Id = int(nv["id"].(float64))
-	if !ok {
-		return nil, errors.New("error cast")
-	}
-
-	u.Name, ok = nv["username"].(string)
-	if !ok {
-		return nil, errors.New("error cast")
-	}
-	return u, nil
+	return &user, nil
 }
 
 var instanceAuthService AuthService
