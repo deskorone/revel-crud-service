@@ -14,14 +14,18 @@ type AuthServiceImpl struct {
 
 // Registration implements AuthService
 func (*AuthServiceImpl) Registration(c *revel.Controller, r models.User) error {
+	
 	u, err := instance.UserService.SaveUser(r)
 	if err != nil {
 		c.Response.Status = 400
 		return err
 	}
+	
+	
 	uv := models.UserView{}
 	uv.Id = u.Id
 	uv.Name = u.Name
+	
 	c.Session["user"] = uv
 	c.Session.SetNoExpiration()
 	return nil
@@ -30,17 +34,21 @@ func (*AuthServiceImpl) Registration(c *revel.Controller, r models.User) error {
 func (o *AuthServiceImpl) Login(c *revel.Controller, r models.LoginRequest) error {
 	pswd := r.Password
 	username := r.Username
+
 	u, err := o.repos.UserRepo.FindUserByName(username)
 	if err != nil {
 		return err
 	}
+
 	e := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(pswd))
 	if e != nil {
 		return e
 	}
+
 	uv := models.UserView{}
 	uv.Id = u.Id
 	uv.Name = u.Name
+
 	c.Session["user"] = uv
 	return nil
 }
@@ -54,10 +62,10 @@ func (c *AuthServiceImpl) GetUserById(Id int) (*models.User, error) {
 }
 
 func (o *AuthServiceImpl) GetUser(c *revel.Controller) (*models.UserView, error) {
-	
+
 	user := models.UserView{}
-	
-	_ , err := c.Session.GetInto("user", &user, false);
+
+	_, err := c.Session.GetInto("user", &user, false)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +80,4 @@ func getAuthService(repo *repo.Repository) AuthService {
 		instanceAuthService = &AuthServiceImpl{repos: repo}
 	}
 	return instanceAuthService
-}
-
-type castType struct {
-	id       float64
-	username string
 }

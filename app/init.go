@@ -49,10 +49,17 @@ var DB *sql.DB
 
 
 func InitDB() {
-	connstring := fmt.Sprintf("user=%s password='%s' dbname=%s host=localhost port=5432 sslmode=disable", "postgres", "1", "go_test")
+	connstring := "user=%s password='%s' dbname=%s host=%s port=%s sslmode=disable"
 
 	var err error
-	DB, err = sql.Open("postgres", connstring)
+	DB, err = sql.Open(revel.Config.StringDefault("db.driver", "postgres"), 
+	fmt.Sprintf(connstring,
+	revel.Config.StringDefault("db.user", "postgres"),
+	revel.Config.StringDefault("db.pass", "123"),
+	revel.Config.StringDefault("db.name", "name"),
+	revel.Config.StringDefault("db.host", "127.0.0.1"),
+	revel.Config.StringDefault("db.port", "5432")))
+	
 	if err != nil {
 		fmt.Println(err.Error())
 	}
