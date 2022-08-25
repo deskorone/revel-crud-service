@@ -22,9 +22,11 @@ type HotelRepo interface {
 	GetAllHotels() ([]models.HotelResp, error)
 	Sub(hId int, uId int) (*models.Hotel, error)
 	Unsub(hId int, uId int) error
+	SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error)
 	SaveHotel(h *models.Hotel, id int) (*models.HotelResp, error)
+	SaveHotelByUsername(h *models.Hotel, username string) (*models.Hotel, error)
 	DeleteHotel(uId, hid int) error
-	AddComment(hId int, uV models.UserView, text string) (*models.CommentResp, error)
+	AddComment(hId int, uV models.UserView, text string) (*models.Comment, error)
 	GetHotelById(hId int) (*models.HotelResp, error)
 }
 

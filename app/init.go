@@ -59,7 +59,7 @@ func InitDB() {
 	revel.Config.StringDefault("db.name", "name"),
 	revel.Config.StringDefault("db.host", "127.0.0.1"),
 	revel.Config.StringDefault("db.port", "5432")))
-	
+
 	if err != nil {
 		fmt.Println(err.Error())
 	}

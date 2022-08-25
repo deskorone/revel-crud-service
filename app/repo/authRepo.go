@@ -14,7 +14,5 @@ func NewAuthRepo(DB *sql.DB) AuthRepo {
 	if authRepoInstance == nil {
 		authRepoInstance = AuthRepoImpl{db: DB}
 	}
-
-
 	return authRepoInstance
 }

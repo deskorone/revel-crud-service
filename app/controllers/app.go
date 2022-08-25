@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+
 	"strconv"
 	"testAuth/app/models"
 	"testAuth/app/service"
@@ -43,7 +44,6 @@ func (c App) SubToHotel() revel.Result {
 	}
 	return c.RenderJSON(a)
 }
-
 
 func (c App) Logout() revel.Result {
 	for k := range c.Session {
@@ -88,6 +88,34 @@ func (c App) UnsubToHotel() revel.Result {
 		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
 	}
 	return c.RenderJSON("OK")
+}
+
+func (c App) SaveHotelWithoutUser() revel.Result {
+
+	req := models.Hotel{}
+	err := c.Params.BindJSON(&req)
+	if err != nil {
+		return BuildCredError(c.Controller, "No valid data")
+	}
+	r, err := service.GetService().HotelService.SaveHotelWithoutUser(req)
+	if err != nil {
+		return BuildCredError(c.Controller, err.Error())
+	}
+	return c.RenderJSON(r)
+}
+
+
+
+func (c App) ParseHtml() revel.Result{
+
+	_, err := service.GetService().HotelService.ParseHotelsFromUrl("https://travel.yandex.ru/hotels/moscow/")
+
+
+	if err != nil {
+		return BuildCredError(c.Controller, err.Error())
+	}
+
+	return c.RenderJSON("ok");
 }
 
 func BuildCredError(c *revel.Controller, msg string) revel.Result {

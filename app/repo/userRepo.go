@@ -19,9 +19,6 @@ const (
 func (c *UserRepoImpl) FindUserByName(Name string) (*models.User, error) {
 	u := models.User{}
 	err := c.DB.QueryRow(findByNameQ, Name).Scan(&u.Id, &u.Name, &u.Password, &u.Balance)
-	if err != nil {
-		return nil, err
-	}
 	return &u, err
 }
 
@@ -29,7 +26,6 @@ func (c *UserRepoImpl) FindUserByName(Name string) (*models.User, error) {
 func (c *UserRepoImpl) Save(u models.User) (*models.User, error) {
 	err := c.DB.QueryRow(saveUserQ, u.Name, u.Password, u.Balance).Scan(&u.Id, &u.Name, &u.Password, &u.Balance)
 	if err != nil {
-		println(err.Error())
 		return nil, err
 	}
 	return &u, nil
@@ -40,7 +36,6 @@ func (c *UserRepoImpl) FindUserById(id int) (*models.User, error) {
 	u := models.User{}
 	err := c.DB.QueryRow(findUserQ, id).Scan(&u.Id, &u.Name, &u.Password, &u.Balance)
 	if err != nil {
-		println(err.Error())
 		return nil, err
 	}
 	return &u, nil

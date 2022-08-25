@@ -14,18 +14,17 @@ type AuthServiceImpl struct {
 
 // Registration implements AuthService
 func (*AuthServiceImpl) Registration(c *revel.Controller, r models.User) error {
-	
+
 	u, err := instance.UserService.SaveUser(r)
 	if err != nil {
 		c.Response.Status = 400
 		return err
 	}
-	
-	
+
 	uv := models.UserView{}
 	uv.Id = u.Id
 	uv.Name = u.Name
-	
+
 	c.Session["user"] = uv
 	c.Session.SetNoExpiration()
 	return nil
@@ -75,7 +74,7 @@ func (o *AuthServiceImpl) GetUser(c *revel.Controller) (*models.UserView, error)
 
 var instanceAuthService AuthService
 
-func getAuthService(repo *repo.Repository) AuthService {
+func getAuthServiceImpl(repo *repo.Repository) AuthService {
 	if instanceAuthService == nil {
 		instanceAuthService = &AuthServiceImpl{repos: repo}
 	}

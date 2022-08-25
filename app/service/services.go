@@ -17,7 +17,7 @@ type Service struct {
 
 type UserService interface {
 	SaveUser(u models.User) (*models.User, error)
-	SubHotel(c *revel.Controller,hID int) (*models.Hotel, error)
+	SubHotel(c *revel.Controller, hID int) (*models.Hotel, error)
 	UnsubHotel(c *revel.Controller, hId int) error
 	GetUserById(c *revel.Controller, id int) (*models.User, error)
 }
@@ -31,10 +31,13 @@ type AuthService interface {
 
 type HotelService interface {
 	SaveHotel(h models.Hotel, c *revel.Controller) (*models.HotelResp, error)
+	SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error)
 	DeleteHotel(uId int, hId int) error
 	GetHotelByUser(c *revel.Controller) ([]models.Hotel, error)
-	AddCommentToHotel(c *revel.Controller, hID int) (*models.Comment, error)
+	AddCommentToHotel(c *revel.Controller, hID int, text string) (*models.Comment, error)
+	ParseHotelsFromUrl(url string) ([]models.Hotel, error)
 }
+
 
 var instance Service
 var once sync.Once
@@ -47,7 +50,7 @@ func GetService() *Service {
 		instance = Service{
 			UserService:  getUserServiceImpl(r),
 			HotelService: getHotelServiceImpl(r),
-			AuthService:  getAuthService(r),
+			AuthService:  getAuthServiceImpl(r),
 		}
 	})
 	return &instance
