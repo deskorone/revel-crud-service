@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 	_ "github.com/revel/modules"
@@ -34,14 +35,13 @@ func init() {
 		revel.BeforeAfterFilter,       // Call the before and after filter functions
 		revel.ActionInvoker,           // Invoke the action.
 	}
-	
 	revel.OnAppStart(InitDB)
-	// Register startup functions with OnAppStart
-	// revel.DevMode and revel.RunMode only work inside of OnAppStart. See Example Startup Script
-	// ( order dependent )
-	// revel.OnAppStart(ExampleStartupScript)
-	// revel.OnAppStart(InitDB)
-	// revel.OnAppStart(FillCache)
+	revel.OnAppStop(func() {
+		if err := DB.Close(); err != nil {
+			log.Fatal(err)
+		}
+		log.Println("DB close")
+	})
 }
 
 
@@ -61,9 +61,10 @@ func InitDB() {
 	revel.Config.StringDefault("db.port", "5432")))
 
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err)
+		return
 	}
-	fmt.Println("DB connected")
+	log.Println("DB connected")
 }
 
 // HeaderFilter adds common security headers

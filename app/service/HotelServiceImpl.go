@@ -3,12 +3,10 @@ package service
 import (
 	"fmt"
 	"net/http"
-	// "sync"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/revel/revel"
 	"testAuth/app/models"
 	"testAuth/app/repo"
-	"time"
 )
 
 type HotelServiceImpl struct {
