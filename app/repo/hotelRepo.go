@@ -12,7 +12,10 @@ type HotelRepoImpl struct {
 
 // SaveHotelWithoutUser implements HotelRepo
 func (c HotelRepoImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error) {
-	if err := c.DB.QueryRow(saveHotelWithoutUser, h.Name, h.Avaible).Scan(&h.ID, &h.Name, &h.Avaible); err != nil {
+
+	q := "insert into hotel (name, avaible, rating, price) values ($1, $2, $3, $4) returning hotel_id, name, avaible,  rating, price"
+
+	if err := c.DB.QueryRow(q, h.Name, h.Avaible, h.Rating, h.Price).Scan(&h.ID, &h.Name, &h.Avaible, &h.Rating, &h.Price); err != nil {
 		fmt.Println(err.Error())
 		return nil, err
 	}

@@ -1,61 +1,24 @@
 package service
 
 import (
-	"fmt"
-	"net/http"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/revel/revel"
 	"testAuth/app/models"
 	"testAuth/app/repo"
+
+	"github.com/revel/revel"
 )
 
 type HotelServiceImpl struct {
 	Repo *repo.Repository
 }
 
-// Константы которые равны порядковым номерам нужных полей при парсинге селектора отеля
-const (
-	nameCounter    = 0
-	avaibleCounter = 3
-)
-
 // SaveHotelWithoutUser implements HotelService
 func (c *HotelServiceImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error) {
 	return c.Repo.HotelRepo.SaveHotelWithoutUser(h)
-
 }
 
 // ParseHotelsFromUrl implements HotelService
-func (c *HotelServiceImpl) ParseHotelsFromUrl(url string) ([]models.Hotel, error) {
-	res, err := http.Get(url)
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
-	}
-
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
-	}
+func (c *HotelServiceImpl) ParseHotelsFromUrl(arr []models.Hotel) ([]models.Hotel, error) {
 	
-	arr := make([]models.Hotel, 0)
-	doc.Find(".hotelInfo_desktop").Each(func(i int, s *goquery.Selection) {
-		h := models.Hotel{}
-		s.Children().Each(func(i int, s *goquery.Selection) {
-			switch i {
-			case nameCounter:
-				h.Name = s.Text()
-			case avaibleCounter:
-				h.Avaible = i
-			}
-		})
-		hres, err := c.Repo.HotelRepo.SaveHotelWithoutUser(h)
-		if err != nil {
-			return
-		}
-		arr = append(arr, *hres)
-	})
 	return arr, nil
 }
 

@@ -108,7 +108,13 @@ func (c App) SaveHotelWithoutUser() revel.Result {
 
 func (c App) ParseHtml() revel.Result{
 
-	_, err := service.GetService().HotelService.ParseHotelsFromUrl("https://travel.yandex.ru/hotels/moscow/")
+	var arr []models.Hotel 
+
+	err := c.Params.BindJSON(&arr)
+	if err != nil {
+		return BuildCredError(c.Controller, "No valide date")
+	}
+	_, err = service.GetService().HotelService.ParseHotelsFromUrl(arr)
 
 
 	if err != nil {

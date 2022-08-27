@@ -2,8 +2,10 @@ package models
 
 type Hotel struct {
 	ID      int64
-	Name    string `json:"name"`
-	Avaible int    `json:"avaible"`
+	Name    string  `json:"name"`
+	Avaible int     `json:"avaible"`
+	Rating  float32 `json:"rating"`
+	Price   int     `json:"price"`
 }
 
 type HotelResp struct {
@@ -14,7 +16,6 @@ type HotelResp struct {
 	Comments []CommentResp
 }
 
-
 type Comment struct {
 	ID      int64
 	Text    string `json:"text"`
@@ -23,7 +24,7 @@ type Comment struct {
 }
 
 type CommentResp struct {
-	ID        int64
-	Text      string
-	UserView  UserView
+	ID       int64
+	Text     string
+	UserView UserView
 }

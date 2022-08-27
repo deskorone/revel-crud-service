@@ -35,7 +35,7 @@ type HotelService interface {
 	DeleteHotel(uId int, hId int) error
 	GetHotelByUser(c *revel.Controller) ([]models.Hotel, error)
 	AddCommentToHotel(c *revel.Controller, hID int, text string) (*models.Comment, error)
-	ParseHotelsFromUrl(url string) ([]models.Hotel, error)
+	ParseHotelsFromUrl(arr []models.Hotel) ([]models.Hotel, error)
 }
 
 

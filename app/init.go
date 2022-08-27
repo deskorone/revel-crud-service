@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-
 	_ "github.com/lib/pq"
 	_ "github.com/revel/modules"
 	"github.com/revel/revel"
@@ -50,7 +49,6 @@ var DB *sql.DB
 
 func InitDB() {
 	connstring := "user=%s password='%s' dbname=%s host=%s port=%s sslmode=disable"
-
 	var err error
 	DB, err = sql.Open(revel.Config.StringDefault("db.driver", "postgres"), 
 	fmt.Sprintf(connstring,
