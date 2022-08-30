@@ -18,8 +18,9 @@ type UserRepo interface {
 }
 
 type HotelRepo interface {
+	GetPaginationHotels(page, size int) ([]models.Hotel, int, error)
 	GetHotelsByUser(id int) ([]models.Hotel, error)
-	GetAllHotels() ([]models.HotelResp, error)
+	GetAllHotels() ([]models.Hotel, error)
 	Sub(hId int, uId int) (*models.Hotel, error)
 	Unsub(hId int, uId int) error
 	SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error)

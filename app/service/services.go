@@ -10,9 +10,10 @@ import (
 )
 
 type Service struct {
-	UserService
-	HotelService
-	AuthService
+	UserService      UserService
+	HotelService     HotelService
+	AuthService      AuthService
+	WebSocketService WebSocketService
 }
 
 type UserService interface {
@@ -30,6 +31,8 @@ type AuthService interface {
 }
 
 type HotelService interface {
+	GetPaginationHotels(page, size int) ([]models.Hotel, int, error)
+	GetAllHotels() ([]models.Hotel, error)
 	SaveHotel(h models.Hotel, c *revel.Controller) (*models.HotelResp, error)
 	SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error)
 	DeleteHotel(uId int, hId int) error
@@ -38,20 +41,32 @@ type HotelService interface {
 	ParseHotelsFromUrl(arr []models.Hotel) ([]models.Hotel, error)
 }
 
+type WebSocketService interface {
+	GetChanels() []chan models.Hotel
+	AddChanel(ch chan models.Hotel)
+	DeleteChan(ch chan models.Hotel)
+	GetMessage() *models.Hotel
+	GetChan() <-chan models.Hotel
+}
 
 var instance Service
 var once sync.Once
 var r *repo.Repository
 
+//var ch chan models.Hotel
+
 func GetService() *Service {
 
 	once.Do(func() {
+		ch := make(chan models.Hotel)
 		r = repo.NewRepo(app.DB)
 		instance = Service{
-			UserService:  getUserServiceImpl(r),
-			HotelService: getHotelServiceImpl(r),
-			AuthService:  getAuthServiceImpl(r),
+			UserService:      getUserServiceImpl(r),
+			HotelService:     getHotelServiceImpl(r, ch),
+			AuthService:      getAuthServiceImpl(r),
+			WebSocketService: getWebSockImpl(ch),
 		}
 	})
+	//fmt.Println(instance)
 	return &instance
 }

@@ -10,6 +10,40 @@ type HotelRepoImpl struct {
 	DB *sql.DB
 }
 
+func (c HotelRepoImpl) GetPaginationHotels(page, size int) ([]models.Hotel, int, error) {
+	//TODO check values
+
+	page--
+	offset := page * size
+	q := `select 
+		hotel_id, 
+ 		name,
+    	avaible,
+    	rating,
+    	price,
+    	(select count(*)/$1 from hotel) 
+    	as total_pages 
+		from hotel limit $1 offset $2 `
+
+	var totalPages int
+	res, err := c.DB.Query(q, size, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	arr := make([]models.Hotel, 0)
+
+	for res.Next() {
+		h := models.Hotel{}
+		if err = res.Scan(&h.ID, &h.Name, &h.Avaible, &h.Rating, &h.Price, &totalPages); err != nil {
+			return nil, 0, err
+		}
+		arr = append(arr, h)
+	}
+	fmt.Println(totalPages)
+	return arr, totalPages, nil
+}
+
 // SaveHotelWithoutUser implements HotelRepo
 func (c HotelRepoImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error) {
 
@@ -122,16 +156,19 @@ func (c HotelRepoImpl) Unsub(hId int, uId int) error {
 }
 
 // GetAllHotels implements HotelRepo
-func (c HotelRepoImpl) GetAllHotels() ([]models.HotelResp, error) {
-	r, err := c.DB.Query(getAllQ)
+func (c HotelRepoImpl) GetAllHotels() ([]models.Hotel, error) {
+
+	q := "select h.hotel_id, h.name, h.avaible, h.rating, h.price from hotel h"
+
+	r, err := c.DB.Query(q)
 	if err != nil {
 		return nil, err
 	}
-	arr := make([]models.HotelResp, 0)
+	arr := make([]models.Hotel, 0)
 
 	for r.Next() {
-		h := models.HotelResp{}
-		if err := r.Scan(&h.ID, &h.Name, &h.Avaible, &h.UserView.Id, &h.UserView.Name); err != nil {
+		h := models.Hotel{}
+		if err := r.Scan(&h.ID, &h.Name, &h.Avaible, &h.Rating, &h.Price); err != nil {
 			return nil, err
 		}
 		arr = append(arr, h)

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	"testAuth/app/models"
 	"testAuth/app/repo"
 
@@ -9,16 +11,44 @@ import (
 
 type HotelServiceImpl struct {
 	Repo *repo.Repository
+	ch   chan models.Hotel
+}
+
+func (c HotelServiceImpl) GetPaginationHotels(page, size int) ([]models.Hotel, int, error) {
+	if page < 1 || size < 1 {
+		return nil, 0, errors.New("inccorrect value")
+	}
+	return c.Repo.HotelRepo.GetPaginationHotels(page, size)
+}
+
+// GetAllHotels implements HotelService
+func (c HotelServiceImpl) GetAllHotels() ([]models.Hotel, error) {
+
+	arr, err := c.Repo.HotelRepo.GetAllHotels()
+	return arr, err
 }
 
 // SaveHotelWithoutUser implements HotelService
 func (c *HotelServiceImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error) {
-	return c.Repo.HotelRepo.SaveHotelWithoutUser(h)
+	hotel := &models.Hotel{}
+	hotel, err := c.Repo.HotelRepo.SaveHotelWithoutUser(h)
+	if err != nil {
+		return nil, err
+	}
+	select {
+	case c.ch <- *hotel:
+		fmt.Println("SEND")
+	default:
+
+		return hotel, nil
+	}
+	//fmt.Println(c.ch)
+	return hotel, nil
 }
 
 // ParseHotelsFromUrl implements HotelService
 func (c *HotelServiceImpl) ParseHotelsFromUrl(arr []models.Hotel) ([]models.Hotel, error) {
-	
+
 	return arr, nil
 }
 
@@ -67,9 +97,9 @@ func (o *HotelServiceImpl) GetHotelByUser(c *revel.Controller) ([]models.Hotel, 
 
 }
 
-func getHotelServiceImpl(r *repo.Repository) HotelService {
+func getHotelServiceImpl(r *repo.Repository, ch chan models.Hotel) HotelService {
 	if instanceHotelService == nil {
-		instanceHotelService = &HotelServiceImpl{r}
+		instanceHotelService = &HotelServiceImpl{r, ch}
 	}
 	return instanceHotelService
 }

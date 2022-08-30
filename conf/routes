@@ -1,7 +1,7 @@
 module:testrunner
 
 
-GET     /                                       App.Index
+GET     /                                       App.Hotels
 GET     /favicon.ico                            404
 GET     /public/*filepath                       Static.Serve("public")
 POST    /reg                                    App.Register
@@ -10,3 +10,6 @@ DELETE  /sub                                    App.UnsubToHotel
 POST    /log                                    App.Login
 POST    /parser                                 App.ParseHtml
 POST    /save                                   App.SaveHotelWithoutUser
+GET     /hotels                                 App.GetAllHotels
+GET     /pagination                             App.HotelsPagination
+WS      /hotels/ws                              App.HotelsWs
