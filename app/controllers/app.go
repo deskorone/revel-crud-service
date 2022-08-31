@@ -146,9 +146,18 @@ func (c App) HotelsPagination(page, size int) revel.Result {
 
 func (c App) HotelsWs(w revel.ServerWebSocket) revel.Result {
 
-	service.GetService().WebSocketService.AppendConnection(w)
+	closeCh := make(chan int)
+	service.GetService().WebSocketService.AppendConnection(w, closeCh)
 	defer service.GetService().WebSocketService.DeleteConnection(w)
-	service.GetService().WebSocketService.GetMessage()
+	go service.GetService().WebSocketService.GetMessage()
+
+	for {
+		select {
+		case <-closeCh:
+			fmt.Println("LEAVE")
+			break
+		}
+	}
 
 	return nil
 }
