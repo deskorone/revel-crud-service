@@ -11,6 +11,14 @@ type WebSocketServiceImpl struct {
 	m  map[revel.ServerWebSocket]bool
 }
 
+func (w *WebSocketServiceImpl) GetMap() map[revel.ServerWebSocket]bool {
+	return w.m
+}
+
+func (w *WebSocketServiceImpl) GetChan() <-chan models.Hotel {
+	return w.ch
+}
+
 func (w *WebSocketServiceImpl) DeleteConnection(ws revel.ServerWebSocket) {
 	delete(w.m, ws)
 }
@@ -25,7 +33,7 @@ func (w *WebSocketServiceImpl) GetMessage() *models.Hotel {
 		case h := <-w.ch:
 			for i := range w.m {
 				if err := i.MessageSendJSON(h); err != nil {
-					return nil
+					delete(w.m, i)
 				}
 			}
 		}

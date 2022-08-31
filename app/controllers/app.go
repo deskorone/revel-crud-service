@@ -148,7 +148,6 @@ func (c App) HotelsWs(w revel.ServerWebSocket) revel.Result {
 
 	service.GetService().WebSocketService.AppendConnection(w)
 	defer service.GetService().WebSocketService.DeleteConnection(w)
-
 	service.GetService().WebSocketService.GetMessage()
 
 	return nil

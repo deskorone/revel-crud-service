@@ -45,6 +45,8 @@ type WebSocketService interface {
 	GetMessage() *models.Hotel
 	AppendConnection(ws revel.ServerWebSocket)
 	DeleteConnection(ws revel.ServerWebSocket)
+	GetChan() <-chan models.Hotel
+	GetMap() map[revel.ServerWebSocket]bool
 }
 
 var instance Service
