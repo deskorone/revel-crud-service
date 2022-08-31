@@ -9,6 +9,15 @@ import (
 type WebSocketServiceImpl struct {
 	arr []chan models.Hotel
 	ch  chan models.Hotel
+	m   map[revel.ServerWebSocket]bool
+}
+
+func (w *WebSocketServiceImpl) DeleteConnection(ws revel.ServerWebSocket) {
+	delete(w.m, ws)
+}
+
+func (w *WebSocketServiceImpl) AppendConnection(ws revel.ServerWebSocket) {
+	w.m[ws] = true
 }
 
 func (w *WebSocketServiceImpl) GetChan() <-chan models.Hotel {
@@ -19,18 +28,9 @@ func (w *WebSocketServiceImpl) GetMessage(ws revel.ServerWebSocket) *models.Hote
 	for {
 		select {
 		case h := <-w.ch:
-			//for _, i := range w.arr {
-			//	select {
-			//	case i <- h:
-			//	default:
-			//		continue
-			//	}
-			//}
-			err := ws.MessageSendJSON(h)
-			if err != nil {
-				return nil
+			for i := range w.m {
+				i.MessageSendJSON(h)
 			}
-
 		}
 	}
 	return nil
@@ -60,8 +60,9 @@ var o sync.Once
 
 func getWebSockImpl(ch chan models.Hotel) WebSocketService {
 	o.Do(func() {
+		m := make(map[revel.ServerWebSocket]bool)
 		arr := make([]chan models.Hotel, 0)
-		instanceWebSockImpl = &WebSocketServiceImpl{arr: arr, ch: ch}
+		instanceWebSockImpl = &WebSocketServiceImpl{arr: arr, ch: ch, m: m}
 	})
 	return instanceWebSockImpl
 }

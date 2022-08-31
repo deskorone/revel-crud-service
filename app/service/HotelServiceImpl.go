@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"testAuth/app/models"
 	"testAuth/app/repo"
 
@@ -37,9 +36,7 @@ func (c *HotelServiceImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, 
 	}
 	select {
 	case c.ch <- *hotel:
-		fmt.Println("SEND")
 	default:
-
 		return hotel, nil
 	}
 	return hotel, nil
