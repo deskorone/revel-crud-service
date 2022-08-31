@@ -146,23 +146,25 @@ func (c App) HotelsPagination(page, size int) revel.Result {
 
 func (c App) HotelsWs(w revel.ServerWebSocket) revel.Result {
 
-	ch := make(chan models.Hotel)
-	defer close(ch)
+	//ch := make(chan models.Hotel)
+	//defer close(ch)
+	//
+	//service.GetService().WebSocketService.AddChanel(ch)
+	//defer service.GetService().WebSocketService.DeleteChan(ch)
+	//
+	//go service.GetService().WebSocketService.GetMessage(w)
+	//
+	//for {
+	//	select {
+	//	case h := <-ch:
+	//		err := w.MessageSendJSON(h)
+	//		if err != nil {
+	//			return nil
+	//		}
+	//	}
+	//}
 
-	service.GetService().WebSocketService.AddChanel(ch)
-	defer service.GetService().WebSocketService.DeleteChan(ch)
-
-	go service.GetService().WebSocketService.GetMessage(w)
-
-	for {
-		select {
-		case h := <-ch:
-			err := w.MessageSendJSON(h)
-			if err != nil {
-				return nil
-			}
-		}
-	}
+	service.GetService().WebSocketService.GetMessage(w)
 
 	return nil
 }

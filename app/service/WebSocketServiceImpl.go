@@ -19,17 +19,17 @@ func (w *WebSocketServiceImpl) GetMessage(ws revel.ServerWebSocket) *models.Hote
 	for {
 		select {
 		case h := <-w.ch:
-			for _, i := range w.arr {
-				select {
-				case i <- h:
-				default:
-					continue
-				}
-			}
-			//err := ws.MessageSendJSON(h)
-			//if err != nil {
-			//	return nil
+			//for _, i := range w.arr {
+			//	select {
+			//	case i <- h:
+			//	default:
+			//		continue
+			//	}
 			//}
+			err := ws.MessageSendJSON(h)
+			if err != nil {
+				return nil
+			}
 
 		}
 	}
