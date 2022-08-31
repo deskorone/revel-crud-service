@@ -42,7 +42,6 @@ func (c *HotelServiceImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, 
 
 		return hotel, nil
 	}
-	//fmt.Println(c.ch)
 	return hotel, nil
 }
 

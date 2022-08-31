@@ -11,8 +11,6 @@ type HotelRepoImpl struct {
 }
 
 func (c HotelRepoImpl) GetPaginationHotels(page, size int) ([]models.Hotel, int, error) {
-	//TODO check values
-
 	page--
 	offset := page * size
 	q := `select 

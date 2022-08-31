@@ -45,7 +45,7 @@ type WebSocketService interface {
 	GetChanels() []chan models.Hotel
 	AddChanel(ch chan models.Hotel)
 	DeleteChan(ch chan models.Hotel)
-	GetMessage() *models.Hotel
+	GetMessage(ws revel.ServerWebSocket) *models.Hotel
 	GetChan() <-chan models.Hotel
 }
 
@@ -53,12 +53,11 @@ var instance Service
 var once sync.Once
 var r *repo.Repository
 
-//var ch chan models.Hotel
+var ch = make(chan models.Hotel)
 
 func GetService() *Service {
 
 	once.Do(func() {
-		ch := make(chan models.Hotel)
 		r = repo.NewRepo(app.DB)
 		instance = Service{
 			UserService:      getUserServiceImpl(r),

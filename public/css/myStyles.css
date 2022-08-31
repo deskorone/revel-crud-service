@@ -1,26 +1,25 @@
 .head {
     width: 1000px;
     height: 100px;
-    background: seashell;
-    border-radius: 10px;
+    background: #B1D7B4;
+    border-radius: 0 0 5px 5px;
     position: relative;
     margin: 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #CFD2CF;
+    /*border: 2px solid #CFD2CF;*/
 }
 
 .pane{
     width: 800px;
     height: 1400px;
     display: flex;
-    border: 2px solid #CFD2CF;
     
-    background: seashell;
+    background: #B1D7B4;
     position: relative;
     top: 10px;
-    border-radius: 10px;
+    border-radius: 5px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -28,23 +27,31 @@
     
 }
 
+
+.list::-webkit-scrollbar {
+    display: none;
+}
+
 .list{
     margin: 10px;
     width: 90%;
     height: 90%;
-    background: #f3efe5;
+    background: #F7F6DC;
     display: block;
     flex-direction: column;
     align-items: center;
     overflow: scroll;
+    border-radius: 5px;
 }
 
 
 .cell{
+    -webkit-box-shadow: 0px 5px 24px -2px rgba(34, 60, 80, 0.2);
+    -moz-box-shadow: 0px 5px 24px -2px rgba(34, 60, 80, 0.2);
+    box-shadow: 0px 5px 24px -2px rgba(34, 60, 80, 0.2);
     width: 95%;
     height: 100px;
-    border: 2px solid #CFD2CF;
-    background: seashell;
+    background: #FFC090;
     margin: 20px;
     border-radius: 10px;
     display: flex;

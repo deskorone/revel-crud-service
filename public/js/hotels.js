@@ -26,16 +26,16 @@ ws.onopen = ()=>{
 }
 
 ws.onmessage = (payload)=>{
-    console.log("HEllo")
-    // data = JSON.parse(payload.data)
-    // $('#list').append(
-    //     `<div class="cell">
-    //             <div class="name">${data.name}</div>
-    //             <div class="info">
-    //                 <div class="price">${data.price}</div>
-    //                 <div class="rating">${data.rating}</div>
-    //             </div>
-    //         </div>`)
+    console.log("Message")
+    data = JSON.parse(payload.data)
+    $('#list').append(
+        `<div class="cell">
+                <div class="name">${data.name}</div>
+                <div class="info">
+                    <div class="price">${data.price}</div>
+                    <div class="rating">${data.rating}</div>
+                </div>
+            </div>`)
 }
 
 ws.onclose = ()=>{

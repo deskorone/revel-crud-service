@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/revel/revel"
 	"sync"
 	"testAuth/app/models"
 )
@@ -14,17 +15,35 @@ func (w *WebSocketServiceImpl) GetChan() <-chan models.Hotel {
 	return w.ch
 }
 
-func (w *WebSocketServiceImpl) GetMessage() *models.Hotel {
+func (w *WebSocketServiceImpl) GetMessage(ws revel.ServerWebSocket) *models.Hotel {
 	for {
 		select {
 		case h := <-w.ch:
-			return &h
+			for _, i := range w.arr {
+				select {
+				case i <- h:
+				default:
+					continue
+				}
+			}
+			//err := ws.MessageSendJSON(h)
+			//if err != nil {
+			//	return nil
+			//}
+
 		}
 	}
+	return nil
 }
 
 func (w *WebSocketServiceImpl) DeleteChan(ch chan models.Hotel) {
-	panic("NOt impl")
+	for n, i := range w.arr {
+		if i == ch {
+			w.arr[n] = w.arr[len(w.arr)-1]
+			w.arr = w.arr[:len(w.arr)-1]
+			break
+		}
+	}
 }
 
 func (w *WebSocketServiceImpl) GetChanels() []chan models.Hotel {
