@@ -133,13 +133,13 @@ func BuildCredError(c *revel.Controller, msg string) revel.Result {
 // HotelsPagination Функция которая выдает пагинацию страницы
 func (c App) HotelsPagination(page, size int) revel.Result {
 
-	arr, _, err := service.GetService().HotelService.GetPaginationHotels(page, size)
+	hotels, _, err := service.GetService().HotelService.GetPaginationHotels(page, size)
 
 	if err != nil {
 		return BuildCredError(c.Controller, err.Error())
 	}
 
-	return c.RenderJSON(arr)
+	return c.RenderJSON(hotels)
 }
 
 // HotelsWs Функция которая отвечает за веб сокет соединение

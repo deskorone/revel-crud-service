@@ -79,11 +79,11 @@ func (c *HotelServiceImpl) DeleteHotel(userId int, hotelId int) error {
 // GetHotelByUser Получение своих отелей
 func (o *HotelServiceImpl) GetHotelByUser(c *revel.Controller) ([]models.Hotel, error) {
 
-	u, err := instance.AuthService.GetUser(c)
+	user, err := instance.AuthService.GetUser(c)
 	if err != nil {
 		return nil, err
 	}
-	hotels, err := o.Repo.HotelRepo.GetHotelsByUser(u.Id)
+	hotels, err := o.Repo.HotelRepo.GetHotelsByUser(user.Id)
 
 	return hotels, err
 
