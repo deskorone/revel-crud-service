@@ -42,11 +42,10 @@ type HotelService interface {
 }
 
 type WebSocketService interface {
-	GetMessage() *models.Hotel
+	GetMessage()
 	AppendConnection(ws revel.ServerWebSocket, closeChan chan int)
 	DeleteConnection(ws revel.ServerWebSocket)
-	GetChan() <-chan models.Hotel
-	//GetMap() map[revel.ServerWebSocket]bool
+	GetMap() map[revel.ServerWebSocket]chan int
 }
 
 var instance Service
@@ -60,10 +59,10 @@ func GetService() *Service {
 	once.Do(func() {
 		r = repo.NewRepo(app.DB)
 		instance = Service{
+			WebSocketService: getWebSockImpl(ch),
 			UserService:      getUserServiceImpl(r),
 			HotelService:     getHotelServiceImpl(r, ch),
 			AuthService:      getAuthServiceImpl(r),
-			WebSocketService: getWebSockImpl(ch),
 		}
 	})
 	//fmt.Println(instance)

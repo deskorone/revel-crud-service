@@ -7,30 +7,35 @@ import (
 )
 
 type WebSocketServiceImpl struct {
-	ch chan models.Hotel
-	m  map[revel.ServerWebSocket]chan int
+	ch             chan models.Hotel
+	connectionsMap map[revel.ServerWebSocket]chan int
 }
 
-func (w *WebSocketServiceImpl) GetChan() <-chan models.Hotel {
-	return w.ch
+func (service *WebSocketServiceImpl) GetMap() map[revel.ServerWebSocket]chan int {
+	return service.connectionsMap
 }
 
-func (w *WebSocketServiceImpl) DeleteConnection(ws revel.ServerWebSocket) {
-	delete(w.m, ws)
+// DeleteConnection удаление соединения из мапы срединений
+func (service *WebSocketServiceImpl) DeleteConnection(ws revel.ServerWebSocket) {
+	delete(service.connectionsMap, ws)
 }
 
-func (w *WebSocketServiceImpl) AppendConnection(ws revel.ServerWebSocket, closeChan chan int) {
-	w.m[ws] = closeChan
+// AppendConnection Добавление соединения в мапу соединений
+func (service *WebSocketServiceImpl) AppendConnection(ws revel.ServerWebSocket, closeChan chan int) {
+	service.connectionsMap[ws] = closeChan
 }
 
-func (w *WebSocketServiceImpl) GetMessage() *models.Hotel {
+// GetMessage Ожидание сообщения от HotelSevrice
+func (service *WebSocketServiceImpl) GetMessage() {
 	for {
+		// Ждем пока из HotelService придет сообщение
 		select {
-		case h := <-w.ch:
-			for i := range w.m {
-				if err := i.MessageSendJSON(h); err != nil {
-					w.m[i] <- 1
-					delete(w.m, i)
+		case hotel := <-service.ch:
+			for webSocket := range service.connectionsMap {
+				if err := webSocket.MessageSendJSON(hotel); err != nil {
+					// Шлю для данного соединения сообщения что соеднинение прервано
+					service.connectionsMap[webSocket] <- 0
+					delete(service.connectionsMap, webSocket)
 				}
 			}
 		}
@@ -44,7 +49,9 @@ var o sync.Once
 func getWebSockImpl(ch chan models.Hotel) WebSocketService {
 	o.Do(func() {
 		m := make(map[revel.ServerWebSocket]chan int)
-		instanceWebSockImpl = &WebSocketServiceImpl{ch: ch, m: m}
+		instanceWebSockImpl = &WebSocketServiceImpl{ch: ch, connectionsMap: m}
+		// Запуск ожидания сообщения в фоне
+		go instanceWebSockImpl.GetMessage()
 	})
 	return instanceWebSockImpl
 }

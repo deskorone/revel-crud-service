@@ -35,9 +35,7 @@ func (c *HotelServiceImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, 
 		return nil, err
 	}
 	select {
-	case c.ch <- *hotel:
-	default:
-		return hotel, nil
+	case c.ch <- h:
 	}
 	return hotel, nil
 }

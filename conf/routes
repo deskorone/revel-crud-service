@@ -8,7 +8,6 @@ POST    /reg                                    App.Register
 POST    /sub                                    App.SubToHotel
 DELETE  /sub                                    App.UnsubToHotel
 POST    /log                                    App.Login
-POST    /parser                                 App.ParseHtml
 POST    /save                                   App.SaveHotelWithoutUser
 GET     /hotels                                 App.GetAllHotels
 GET     /pagination                             App.HotelsPagination

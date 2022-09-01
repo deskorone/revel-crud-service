@@ -3,14 +3,12 @@ module testAuth
 go 1.18
 
 require (
+	github.com/gorilla/websocket v1.5.0
 	github.com/revel/modules v1.1.0
 	github.com/revel/revel v1.1.0
-	golang.org/x/text v0.3.7
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.0 // indirect
-	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d // indirect
 	github.com/gomodule/redigo v1.8.9 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
