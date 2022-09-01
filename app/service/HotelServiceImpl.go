@@ -48,46 +48,44 @@ func (c *HotelServiceImpl) ParseHotelsFromUrl(arr []models.Hotel) ([]models.Hote
 
 var instanceHotelService HotelService
 
-func (q *HotelServiceImpl) AddCommentToHotel(c *revel.Controller, hID int, text string) (*models.Comment, error) {
+// AddCommentToHotel Добавить комментарий к отелю, принимает id отеля и текст коментария (доступно только авторизированному пользователю)
+func (q *HotelServiceImpl) AddCommentToHotel(c *revel.Controller, hotelID int, text string) (*models.Comment, error) {
 	u, err := instance.AuthService.GetUser(c)
 	if err != nil {
 		return nil, err
 	}
-	r, err := q.Repo.HotelRepo.AddComment(hID, *u, text)
+	r, err := q.Repo.HotelRepo.AddComment(hotelID, *u, text)
 	return r, err
 }
 
-func (o *HotelServiceImpl) SaveHotel(h models.Hotel, c *revel.Controller) (*models.HotelResp, error) {
+// SaveHotel Созранение отеля принимает modes.Hotel
+func (o *HotelServiceImpl) SaveHotel(hotel models.Hotel, c *revel.Controller) (*models.HotelResp, error) {
 	u, err := instance.AuthService.GetUser(c)
 	if err != nil {
 		c.Response.Status = 403
 		return nil, err
 	}
-	hr, err := o.Repo.HotelRepo.SaveHotel(&h, u.Id)
-	if err != nil {
-		return nil, err
-	}
-	return hr, nil
+	hr, err := o.Repo.HotelRepo.SaveHotel(&hotel, u.Id)
+	return hr, err
 
 }
 
-func (c *HotelServiceImpl) DeleteHotel(uId int, hId int) error {
-	err := c.Repo.HotelRepo.DeleteHotel(uId, hId)
+// DeleteHotel удаляет отель примает id владельца и отеля
+func (c *HotelServiceImpl) DeleteHotel(userId int, hotelId int) error {
+	err := c.Repo.HotelRepo.DeleteHotel(userId, hotelId)
 	return err
 }
 
+// GetHotelByUser Получение своих отелей
 func (o *HotelServiceImpl) GetHotelByUser(c *revel.Controller) ([]models.Hotel, error) {
 
 	u, err := instance.AuthService.GetUser(c)
 	if err != nil {
 		return nil, err
 	}
-	arr, err := o.Repo.HotelRepo.GetHotelsByUser(u.Id)
-	if err != nil {
-		return nil, err
-	}
+	hotels, err := o.Repo.HotelRepo.GetHotelsByUser(u.Id)
 
-	return arr, nil
+	return hotels, err
 
 }
 

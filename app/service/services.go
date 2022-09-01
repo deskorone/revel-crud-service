@@ -17,34 +17,34 @@ type Service struct {
 }
 
 type UserService interface {
-	SaveUser(u models.User) (*models.User, error)
-	SubHotel(c *revel.Controller, hID int) (*models.Hotel, error)
-	UnsubHotel(c *revel.Controller, hId int) error
-	GetUserById(c *revel.Controller, id int) (*models.User, error)
+	SaveUser(user models.User) (*models.User, error)
+	SubHotel(c *revel.Controller, hotelId int) (*models.Hotel, error)
+	UnsubHotel(c *revel.Controller, hotelId int) error
+	GetUserById(c *revel.Controller, userId int) (*models.User, error)
 }
 
 type AuthService interface {
 	Registration(c *revel.Controller, r models.User) error
 	Login(c *revel.Controller, r models.LoginRequest) error
 	GetUser(c *revel.Controller) (*models.UserView, error)
-	GetUserById(Id int) (*models.User, error)
+	GetUserById(userId int) (*models.User, error)
 }
 
 type HotelService interface {
 	GetPaginationHotels(page, size int) ([]models.Hotel, int, error)
 	GetAllHotels() ([]models.Hotel, error)
-	SaveHotel(h models.Hotel, c *revel.Controller) (*models.HotelResp, error)
+	SaveHotel(hotel models.Hotel, c *revel.Controller) (*models.HotelResp, error)
 	SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error)
-	DeleteHotel(uId int, hId int) error
+	DeleteHotel(userId int, hotelId int) error
 	GetHotelByUser(c *revel.Controller) ([]models.Hotel, error)
-	AddCommentToHotel(c *revel.Controller, hID int, text string) (*models.Comment, error)
+	AddCommentToHotel(c *revel.Controller, hotelId int, text string) (*models.Comment, error)
 	ParseHotelsFromUrl(arr []models.Hotel) ([]models.Hotel, error)
 }
 
 type WebSocketService interface {
 	GetMessage()
-	AppendConnection(ws revel.ServerWebSocket, closeChan chan int)
-	DeleteConnection(ws revel.ServerWebSocket)
+	AppendConnection(webSocket revel.ServerWebSocket, closeChan chan int)
+	DeleteConnection(webSocket revel.ServerWebSocket)
 	GetMap() map[revel.ServerWebSocket]chan int
 }
 
@@ -54,8 +54,10 @@ var r *repo.Repository
 
 var ch = make(chan models.Hotel)
 
+// GetService Получение сервиса
 func GetService() *Service {
 
+	// Иницилизация сервисов
 	once.Do(func() {
 		r = repo.NewRepo(app.DB)
 		instance = Service{

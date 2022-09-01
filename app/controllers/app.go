@@ -143,13 +143,12 @@ func (c App) HotelsPagination(page, size int) revel.Result {
 }
 
 // HotelsWs Функция которая отвечает за веб сокет соединение
-func (c App) HotelsWs(w revel.ServerWebSocket) revel.Result {
+func (c App) HotelsWs(webSocket revel.ServerWebSocket) revel.Result {
 
 	// Канал оповещающий что соединение закрыто
 	closeCh := make(chan int)
-	service.GetService().WebSocketService.AppendConnection(w, closeCh)
+	service.GetService().WebSocketService.AppendConnection(webSocket, closeCh)
 	defer close(closeCh)
-
 	for {
 		//Ждем пока придет оповещение о закрытии соединения и выходим из цикла
 		select {
