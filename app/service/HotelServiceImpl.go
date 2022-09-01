@@ -28,14 +28,14 @@ func (c HotelServiceImpl) GetAllHotels() ([]models.Hotel, error) {
 }
 
 // SaveHotelWithoutUser implements HotelService
-func (c *HotelServiceImpl) SaveHotelWithoutUser(h models.Hotel) (*models.Hotel, error) {
+func (c *HotelServiceImpl) SaveHotelWithoutUser(hotelReq models.Hotel) (*models.Hotel, error) {
 	hotel := &models.Hotel{}
-	hotel, err := c.Repo.HotelRepo.SaveHotelWithoutUser(h)
+	hotel, err := c.Repo.HotelRepo.SaveHotelWithoutUser(hotelReq)
 	if err != nil {
 		return nil, err
 	}
 	select {
-	case c.ch <- h:
+	case c.ch <- *hotel:
 	}
 	return hotel, nil
 }
