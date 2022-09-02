@@ -21,30 +21,36 @@ func (c App) Hotels() revel.Result {
 
 // Register Регистрация пользователя в теле запроса отправляется json типа models.User
 func (c App) Register() revel.Result {
+
 	u := models.User{}
 	err := c.Params.BindJSON(&u)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+
 	err = service.GetService().AuthService.Registration(c.Controller, u)
 	if err != nil {
 		c.Response.Status = 400
 		return c.RenderJSON(map[string]interface{}{"Error": err})
 	}
+
 	return c.RenderJSON(map[string]interface{}{"You": "auth"})
 }
 
 // SubToHotel Подписка на отель доступен только залогининым пользователям (в параметрах принимает id отеля)
 func (c App) SubToHotel() revel.Result {
+
 	id := c.Params.Query.Get("id")
 	n, err := strconv.Atoi(id)
 	if err != nil {
 		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
 	}
+
 	a, err := service.GetService().UserService.SubHotel(c.Controller, n)
 	if err != nil {
 		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
 	}
+
 	return c.RenderJSON(a)
 }
 
@@ -88,6 +94,7 @@ func (c App) AddHotel() revel.Result {
 
 // GetAllHotels Получить все отели из базы
 func (c App) GetAllHotels() revel.Result {
+
 	hotels, err := service.GetService().HotelService.GetAllHotels()
 	if err != nil {
 		return BuildCredError(c.Controller, err.Error())
@@ -97,15 +104,18 @@ func (c App) GetAllHotels() revel.Result {
 
 // UnsubToHotel Отписка от отеля
 func (c App) UnsubToHotel() revel.Result {
+
 	id := c.Params.Query.Get("id")
 	numId, err := strconv.Atoi(id)
 	if err != nil {
 		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
 	}
+
 	err = service.GetService().UserService.UnsubHotel(c.Controller, numId)
 	if err != nil {
 		return c.RenderJSON(map[string]interface{}{"Error": err.Error()})
 	}
+
 	return c.RenderJSON("OK")
 }
 
@@ -117,10 +127,12 @@ func (c App) SaveHotelWithoutUser() revel.Result {
 	if err != nil {
 		return BuildCredError(c.Controller, "No valid data")
 	}
+
 	r, err := service.GetService().HotelService.SaveHotelWithoutUser(req)
 	if err != nil {
 		return BuildCredError(c.Controller, err.Error())
 	}
+
 	return c.RenderJSON(r)
 }
 
@@ -134,7 +146,6 @@ func BuildCredError(c *revel.Controller, msg string) revel.Result {
 func (c App) HotelsPagination(page, size int) revel.Result {
 
 	hotels, _, err := service.GetService().HotelService.GetPaginationHotels(page, size)
-
 	if err != nil {
 		return BuildCredError(c.Controller, err.Error())
 	}
@@ -145,15 +156,7 @@ func (c App) HotelsPagination(page, size int) revel.Result {
 // HotelsWs Функция которая отвечает за веб сокет соединение
 func (c App) HotelsWs(webSocket revel.ServerWebSocket) revel.Result {
 
-	// Канал оповещающий что соединение закрыто
-	closeCh := make(chan int)
-	service.GetService().WebSocketService.AppendConnection(webSocket, closeCh)
-	defer close(closeCh)
-	for {
-		//Ждем пока придет оповещение о закрытии соединения и выходим из цикла
-		select {
-		case <-closeCh:
-			return nil
-		}
-	}
+	// Добавляю соединение в мапу соединений
+	service.GetService().WebSocketService.AppendConnection(webSocket)
+	return nil
 }

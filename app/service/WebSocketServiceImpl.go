@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/revel/revel"
 	"sync"
 	"testAuth/app/models"
@@ -8,10 +9,10 @@ import (
 
 type WebSocketServiceImpl struct {
 	ch             chan models.Hotel
-	connectionsMap map[revel.ServerWebSocket]chan int
+	connectionsMap map[revel.ServerWebSocket]context.CancelFunc
 }
 
-func (service *WebSocketServiceImpl) GetMap() map[revel.ServerWebSocket]chan int {
+func (service *WebSocketServiceImpl) GetMap() map[revel.ServerWebSocket]context.CancelFunc {
 	return service.connectionsMap
 }
 
@@ -21,8 +22,15 @@ func (service *WebSocketServiceImpl) DeleteConnection(ws revel.ServerWebSocket) 
 }
 
 // AppendConnection Добавление соединения в мапу соединений
-func (service *WebSocketServiceImpl) AppendConnection(ws revel.ServerWebSocket, closeChan chan int) {
-	service.connectionsMap[ws] = closeChan
+func (service *WebSocketServiceImpl) AppendConnection(ws revel.ServerWebSocket) {
+	ctx := context.Background()
+	c, cancel := context.WithCancel(ctx)
+	service.connectionsMap[ws] = cancel
+	select {
+	case <-c.Done():
+		// Поле того как контекст завершится, функция завершается и соединенин для этого сокета закрывается
+	}
+
 }
 
 // GetMessage Ожидание сообщения от HotelSevrice
@@ -33,8 +41,8 @@ func (service *WebSocketServiceImpl) GetMessage() {
 		case hotel := <-service.ch:
 			for webSocket := range service.connectionsMap {
 				if err := webSocket.MessageSendJSON(hotel); err != nil {
-					// Шлю для данного соединения сообщения что соеднинение прервано
-					service.connectionsMap[webSocket] <- 0
+					// Прерываю контекст
+					service.connectionsMap[webSocket]() // cancelFunc
 					delete(service.connectionsMap, webSocket)
 				}
 			}
@@ -48,7 +56,7 @@ var o sync.Once
 
 func getWebSockImpl(ch chan models.Hotel) WebSocketService {
 	o.Do(func() {
-		m := make(map[revel.ServerWebSocket]chan int)
+		m := make(map[revel.ServerWebSocket]context.CancelFunc)
 		instanceWebSockImpl = &WebSocketServiceImpl{ch: ch, connectionsMap: m}
 		// Запуск ожидания сообщения в фоне
 		go instanceWebSockImpl.GetMessage()

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"sync"
 	"testAuth/app"
 	"testAuth/app/models"
@@ -43,9 +44,9 @@ type HotelService interface {
 
 type WebSocketService interface {
 	GetMessage()
-	AppendConnection(webSocket revel.ServerWebSocket, closeChan chan int)
+	AppendConnection(webSocket revel.ServerWebSocket)
 	DeleteConnection(webSocket revel.ServerWebSocket)
-	GetMap() map[revel.ServerWebSocket]chan int
+	GetMap() map[revel.ServerWebSocket]context.CancelFunc
 }
 
 var instance Service
